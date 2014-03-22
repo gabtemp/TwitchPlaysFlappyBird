@@ -18,8 +18,10 @@ import configparser
 import os
 import socket
 import time
+import webbrowser
 
 import win32com.client, win32api, win32con
+
 
 readbuffer = ""
 commands = []
@@ -110,8 +112,7 @@ while True:
         
     print("Starting flappybird.io")
     time.sleep(1)
-    # emulator_job = Thread(target = startemulator, args = ())
-    # emulator_job.start()
+    webbrowser.get('windows-default').open('http://flappybird.io')
     
     s = socket.socket()
     s.connect((HOST, PORT))
