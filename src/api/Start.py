@@ -16,13 +16,16 @@
 
 import configparser
 import os
+import socket
 import time
 
 import win32com.client, win32api, win32con
 
-
+readbuffer = ""
+commands = []
 settings = []
 shell = win32com.client.Dispatch("WScript.Shell")
+
 VK_CODE = {'spacebar':0x20}
 
 def press(*args):
@@ -35,6 +38,13 @@ def press(*args):
         time.sleep(0.2)
         win32api.keybd_event(VK_CODE[i], 0 , win32con.KEYEVENTF_KEYUP , 0)
 
+def addtofile():
+    if len(commands) >= command_length:
+        del commands[0]
+        commands.extend([user[1:] + out.lower()])
+    else:
+        commands.extend([user[1:] + out.lower()])
+            
 # Directly from github.com/sunshinekitty5/TwitchPlaysPokemon
 while True:
     if os.path.isfile("flappybird.config"):
@@ -47,7 +57,6 @@ while True:
         APP = config.get('Settings', 'APP')
         CHAT_CHANNEL = config.get('Settings', 'CHAT_CHANNEL').lower()
         command_length = config.getint('Settings', 'LENGTH')
-        QUICK_PRESS = config.getboolean('Settings', 'QUICK_PRESS')
         break
     else:
         print("Let's make you a config file")
@@ -91,26 +100,78 @@ while True:
         settings_length = input("Length: ")
         settings.append("LENGTH = " + settings_length + "\n")
         
-        settings.append("; Oh how to explain this...")
-        settings.append("; You get the chat command 'Left'")
-        settings.append("; You are currently facing right")
-        settings.append("; If QUICK_PRESS is true you turn left")
-        settings.append("; If QUICK_PRESS is false you turn left and move one square left")
-        print("Oh how to explain this...")
-        print("You get the chat command 'Left'")
-        print("You are currently facing right")
-        print("If QUICK_PRESS is true you turn left")
-        print("If QUICK_PRESS is false you turn left and move one square left")
-        settings_press = input("QUICK PRESS: ")
-        settings.append("QUICK_PRESS = " + settings_press + "\n")
-        
-        with open("settings.txt", "w") as f:
+        with open("flappybird.config", "w") as f:
             for each_setting in settings:
                 f.write(each_setting + '\n')
+
+while True:
+    with open("lastsaid.txt", "w") as f:
+        f.write("")
+        
+    print("Starting flappybird.io")
+    time.sleep(1)
+    # emulator_job = Thread(target = startemulator, args = ())
+    # emulator_job.start()
     
-    command = input("Command: ")
-    if command.lower() == "flap":
-        shell.AppActivate("%s" % APP)
-        press('spacebar')
-    if command.lower() == "wait" or command.lower() == "w":
-        time.sleep(.85)
+    s = socket.socket()
+    s.connect((HOST, PORT))
+
+    s.send(bytes("PASS %s\r\n" % AUTH, "UTF-8"))
+    s.send(bytes("NICK %s\r\n" % NICK, "UTF-8"))
+    s.send(bytes("USER %s %s bla :%s\r\n" % (NICK, HOST, NICK), "UTF-8"))
+    s.send(bytes("JOIN #%s\r\n" % CHAT_CHANNEL, "UTF-8"));
+    s.send(bytes("PRIVMSG #%s :Connected\r\n" % CHAT_CHANNEL, "UTF-8"))
+    print("Sent connected message to channel %s" % CHAT_CHANNEL)
+
+    while 1:
+        readbuffer = readbuffer + s.recv(1024).decode("UTF-8", errors="ignore")
+        temp = str.split(readbuffer, "\n")
+        readbuffer = temp.pop()
+
+        for line in temp:
+            x = 0
+            out = ""
+            line = str.rstrip(line)
+            line = str.split(line)
+
+            for index, i in enumerate(line):
+                if x == 0:
+                    user = line[index]
+                    user = user.split('!')[0]
+                    user = user[0:12] + ": "
+                if x == 3:
+                    out += line[index]
+                    out = out[1:]
+                if x >= 4:
+                    out += " " + line[index]
+                x = x + 1
+            
+            # Respond to ping, squelch useless feedback given by twitch, print output and read to list
+            if user == "PING: ":
+                s.send(bytes("PONG tmi.twitch.tv\r\n", "UTF-8"))
+            elif user == ":tmi.twitch.tv: ":
+                pass
+            elif user == ":tmi.twitch.: ":
+                pass
+            elif user == ":%s.tmi.twitch.tv: " % NICK:
+                pass
+            else:
+                try:
+                    print(user + out)
+                except UnicodeEncodeError:
+                    print(user)
+                
+            # Take in output
+            if out.lower() == 'flap':
+                shell.AppActivate("%s" % APP)
+                time.sleep(.02)
+                press('spacebar')
+                addtofile()
+            if out.lower() == "wait" or out.lower() == "w":
+                time.sleep(.85)
+                addtofile()
+            
+            # Write to file for stream view
+            with open("commands.txt", "w") as f:
+                for item in commands:
+                    f.write(item + '\n')
