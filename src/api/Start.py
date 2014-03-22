@@ -58,6 +58,7 @@ while True:
         NICK = config.get('Settings', 'USERNAME').lower()
         APP = config.get('Settings', 'APP')
         CHAT_CHANNEL = config.get('Settings', 'CHAT_CHANNEL').lower()
+        WAIT_TIME = float(config.get('Settings', 'WAIT_TIME').lower())
         command_length = config.getint('Settings', 'LENGTH')
         break
     else:
@@ -102,14 +103,16 @@ while True:
         settings_length = input("Length: ")
         settings.append("LENGTH = " + settings_length + "\n")
         
+        settings.append("; The duration (in seconds) of the wait command")
+        print("The duration (in seconds) of the wait command")
+        settings_wait = input("Wait time: ")
+        settings.append("WAIT_TIME = " + settings_wait + "\n")
+        
         with open("flappybird.config", "w") as f:
             for each_setting in settings:
                 f.write(each_setting + '\n')
 
 while True:
-    with open("lastsaid.txt", "w") as f:
-        f.write("")
-        
     print("Starting flappybird.io")
     time.sleep(1)
     webbrowser.get('windows-default').open('http://flappybird.io')
@@ -169,7 +172,7 @@ while True:
                 press('spacebar')
                 addtofile()
             if out.lower() == "wait" or out.lower() == "w":
-                time.sleep(.85)
+                time.sleep(WAIT_TIME)
                 addtofile()
             
             # Write to file for stream view
