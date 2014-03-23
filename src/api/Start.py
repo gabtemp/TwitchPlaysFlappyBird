@@ -17,10 +17,13 @@
 import configparser
 import os
 import socket
+from threading import Thread
 import time
 import webbrowser
 
 import win32com.client, win32api, win32con
+
+from gui import CommandsMonitor
 
 
 readbuffer = ""
@@ -46,6 +49,9 @@ def addtofile():
         commands.extend([user[1:] + out.lower()])
     else:
         commands.extend([user[1:] + out.lower()])
+        
+def startGui():
+    CommandsMonitor.init()
             
 # Directly from github.com/sunshinekitty5/TwitchPlaysPokemon
 while True:
@@ -116,6 +122,11 @@ while True:
     print("Starting flappybird.io")
     time.sleep(1)
     webbrowser.get('windows-default').open('http://flappybird.io')
+    
+    print("Starting comments monitor")
+    time.sleep(1)
+    job = Thread(target = startGui, args = ())
+    job.start()
     
     s = socket.socket()
     s.connect((HOST, PORT))

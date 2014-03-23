@@ -4,6 +4,10 @@ import pygame, sys
 from pygame.locals import QUIT
 
 
+HEIGHT = 700
+WIDTH = 600
+SPACE_WIDTH = 10
+
 start = time.time()
 
 def getTimeString():
@@ -15,43 +19,45 @@ def getTimeString():
     elapsed = {'days' : int(days), 'hours' : int(hours) , 'minutes' : int(minutes), 'sec' : int(sec)}
     return '%(days)sd%(hours)sh%(minutes)sm%(sec)ss' % elapsed;
 
-# set up pygame
-pygame.init()
-
-# set up the window
-windowSurface = pygame.display.set_mode((500, 800), 0, 32)
-pygame.display.set_caption('Command list!')
-
-# set up the colors
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-
-# set up fonts
-basicFont = pygame.font.SysFont(None, 48)
-
-while True:
-    # Rendering elapsed time
-    text = basicFont.render(getTimeString(), True, WHITE)
-    textRect = text.get_rect()
-    textRect.centerx = text.get_width()/2 + 5
-    textRect.centery = text.get_height()/2 + 5
+def init():
+    # set up pygame
+    pygame.init()
     
-    # draw the white background onto the surface
-    windowSurface.fill(BLACK)
+    # set up the window
+    windowSurface = pygame.display.set_mode((WIDTH, HEIGHT), 0, 32)
+    pygame.display.set_caption('Command list!')
     
-    # get a pixel array of the surface
-    pixArray = pygame.PixelArray(windowSurface)
-    pixArray[480][380] = BLACK
-    del pixArray
+    # set up the colors
+    BLACK = (0, 0, 0)
+    WHITE = (255, 255, 255)
     
-    # draw the text onto the surface
-    windowSurface.blit(text, textRect)
+    # set up fonts
+    basicFont = pygame.font.SysFont(None, 48)
     
-    # draw the window onto the screen
-    pygame.display.update()
-
+    while True:
+        # Rendering elapsed time
+        elapsedTime = basicFont.render(getTimeString(), True, WHITE)
+        elapsedTimeRect = elapsedTime.get_rect()
+        elapsedTimeRect.centerx = WIDTH / 2 
+        elapsedTimeRect.centery = elapsedTime.get_height() / 2 + SPACE_WIDTH*3
+        
+        # draw the black background onto the surface
+        windowSurface.fill(BLACK)
     
-    for event in pygame.event.get():
-        if event.type == QUIT:
-            pygame.quit()
-            sys.exit()
+        # get a pixel array of the surface
+        pixArray = pygame.PixelArray(windowSurface)
+        pixArray[480][380] = BLACK
+        del pixArray
+        
+        # draw the elapsedTime onto the surface
+        windowSurface.blit(elapsedTime, elapsedTimeRect)
+        pygame.draw.line(windowSurface, WHITE, (0, 100), (WIDTH, 100), 4)
+        
+        # draw the window onto the screen
+        pygame.display.update()
+    
+        
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
