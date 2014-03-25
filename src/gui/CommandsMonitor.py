@@ -12,10 +12,10 @@ start = time.time()
 
 def getTimeString():
     delta = time.time() - start;
-    sec = (delta) % 60
-    minutes = ((delta / 60) % 60)
-    hours = ((delta / (60 * 60)) % 24);
-    days = ((delta / (60 * 60)) / 24)
+    sec = delta % 60
+    minutes = (delta / 60) % 60
+    hours = (delta / (60 * 60)) % 24
+    days = delta / (60 * 60 * 24)
     elapsed = {'days' : int(days), 'hours' : int(hours) , 'minutes' : int(minutes), 'sec' : int(sec)}
     return '%(days)sd%(hours)sh%(minutes)sm%(sec)ss' % elapsed;
 
