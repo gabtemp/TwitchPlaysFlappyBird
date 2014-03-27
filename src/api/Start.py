@@ -49,10 +49,10 @@ def addtofile():
         commands.extend([user[1:] + out.lower()])
     else:
         commands.extend([user[1:] + out.lower()])
-        
+
 def startGui():
     CommandsMonitor.init()
-            
+
 # Directly from github.com/sunshinekitty5/TwitchPlaysPokemon
 while True:
     if os.path.isfile("flappybird.config"):
@@ -71,49 +71,49 @@ while True:
         print("Let's make you a config file")
         settings.append("; Settings for Twitch Plays Flappy Bird")
         settings.append("; Thanks sunshinekitty5 \n")
-        
+
         settings.append("[Settings]\n")
-        
+
         settings.append("; Where you're connecting to, if it's Twitch leave it as is")
         print("Where you're connecting to, if it's Twitch use irc.twitch.tv")
         settings_host = input("Hostname: ")
         settings.append("HOST = " + settings_host + "\n")
-        
+
         settings.append("; Port number, probably should use 6667")
         print("Port number, probably should use 6667")
         settings_port = input("Port: ")
         settings.append("PORT = " + settings_port + "\n")
-        
+
         settings.append("; Auth token, grab this from http://www.twitchapps.com/tmi")
         print("Auth token, grab this from http://www.twitchapps.com/tmi")
         settings_auth = input("Auth Token: ")
         settings.append("AUTH = " + settings_auth + "\n")
-        
+
         settings.append("; Your Twitch Bot's Username")
         print("Your Twitch Bot's Username")
         settings_bot = input("Bot's Username: ")
         settings.append("USERNAME = " + settings_bot + "\n")
-        
+
         settings.append("; Name of the application you run the file from, I suggest VBA")
         print("Name of the application you run the file from, if Visual Boy Advance use VisualBoyAdvance")
         settings_app = input("Application name: ")
         settings.append("APP = " + settings_app + "\n")
-        
+
         settings.append("; Username of who's channel you're connecting to")
         print("Username of who's channel you're connecting to")
         settings_chat = input("Username: ")
         settings.append("CHAT_CHANNEL = " + settings_chat + "\n")
-        
+
         settings.append("; The maximum number of lines in commands.txt (Useful for showing commands received in stream)")
         print("The maximum number of lines in commands.txt (Useful for showing commands received in stream)")
         settings_length = input("Length: ")
         settings.append("LENGTH = " + settings_length + "\n")
-        
+
         settings.append("; The duration (in seconds) of the wait command")
         print("The duration (in seconds) of the wait command")
         settings_wait = input("Wait time: ")
         settings.append("WAIT_TIME = " + settings_wait + "\n")
-        
+
         with open("flappybird.config", "w") as f:
             for each_setting in settings:
                 f.write(each_setting + '\n')
@@ -122,12 +122,12 @@ while True:
     print("Starting flappybird.io")
     time.sleep(1)
     webbrowser.get('windows-default').open('http://flappybird.io')
-    
+
     print("Starting comments monitor")
     time.sleep(1)
     job = Thread(target = startGui, args = ())
     job.start()
-    
+
     s = socket.socket()
     s.connect((HOST, PORT))
 
@@ -160,7 +160,7 @@ while True:
                 if x >= 4:
                     out += " " + line[index]
                 x = x + 1
-            
+
             # Respond to ping, squelch useless feedback given by twitch, print output and read to list
             if user == "PING: ":
                 s.send(bytes("PONG tmi.twitch.tv\r\n", "UTF-8"))
@@ -175,7 +175,7 @@ while True:
                     print(user + out)
                 except UnicodeEncodeError:
                     print(user)
-                
+
             # Take in output
             if out.lower() == 'flap':
                 shell.AppActivate("%s" % APP)
@@ -185,7 +185,7 @@ while True:
             if out.lower() == "wait" or out.lower() == "w":
                 time.sleep(WAIT_TIME)
                 addtofile()
-            
+
             # Write to file for stream view
             with open("commands.txt", "w") as f:
                 for item in commands:
